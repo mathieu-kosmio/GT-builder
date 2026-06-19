@@ -14,7 +14,12 @@ export async function GET() {
     /* reste "fail" */
   }
   try {
-    const pong = await connection().ping();
+    // Borne le ping : ioredis (maxRetriesPerRequest:null, requis par BullMQ) attendrait
+    // sinon indéfiniment si Valkey est injoignable. On échoue vite à la place.
+    const pong = await Promise.race([
+      connection().ping(),
+      new Promise<string>((_, reject) => setTimeout(() => reject(new Error("timeout")), 1500)),
+    ]);
     checks.valkey = pong === "PONG" ? "ok" : "fail";
   } catch {
     /* reste "fail" */
