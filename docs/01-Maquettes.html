@@ -1,0 +1,280 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>GT-builder — Schéma d'architecture & maquettes</title>
+<style>
+  :root{
+    --bg:#f5f6f8; --card:#ffffff; --ink:#1c2433; --muted:#6b7686;
+    --line:#e2e6ec; --brand:#2f6f5e; --brand-soft:#e7f1ee;
+    --accent:#c6643a; --accent-soft:#fbeee6;
+    --add:#e6f4ea; --add-ink:#1f7a3d; --del:#fdecec; --del-ink:#b23b3b;
+    --radius:14px; --shadow:0 1px 3px rgba(20,30,50,.06),0 6px 20px rgba(20,30,50,.05);
+  }
+  *{box-sizing:border-box}
+  body{margin:0;background:var(--bg);color:var(--ink);
+    font-family:-apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,Helvetica,Arial,sans-serif;
+    line-height:1.5;padding:32px 20px 60px}
+  .wrap{max-width:1080px;margin:0 auto}
+  h1{font-size:30px;margin:0 0 4px}
+  .sub{color:var(--muted);margin:0 0 28px;font-size:15px}
+  h2{font-size:13px;letter-spacing:.08em;text-transform:uppercase;color:var(--brand);
+    margin:44px 0 14px;font-weight:700}
+  .card{background:var(--card);border:1px solid var(--line);border-radius:var(--radius);
+    box-shadow:var(--shadow);overflow:hidden}
+  .pad{padding:20px 22px}
+  /* ---- flow diagram ---- */
+  .flow{display:flex;flex-wrap:wrap;align-items:stretch;gap:10px}
+  .step{flex:1 1 150px;min-width:150px;background:var(--brand-soft);border:1px solid #cfe3dc;
+    border-radius:12px;padding:14px}
+  .step .n{font-size:11px;color:var(--brand);font-weight:700;letter-spacing:.05em}
+  .step .t{font-weight:600;margin:4px 0 2px;font-size:14px}
+  .step .d{font-size:12px;color:var(--muted)}
+  .step.alt{background:var(--accent-soft);border-color:#eccdbb}
+  .step.alt .n{color:var(--accent)}
+  .arrow{align-self:center;color:var(--muted);font-size:20px;flex:0 0 auto}
+  .stack{display:grid;grid-template-columns:repeat(auto-fit,minmax(150px,1fr));gap:10px;margin-top:14px}
+  .brick{border:1px dashed var(--line);border-radius:10px;padding:10px 12px;font-size:12px;background:#fafbfc}
+  .brick b{display:block;font-size:13px;color:var(--ink);margin-bottom:2px}
+  .brick span{color:var(--muted)}
+  /* ---- mockup chrome ---- */
+  .mock{margin-top:14px}
+  .mockbar{display:flex;align-items:center;gap:8px;background:#eef1f4;border-bottom:1px solid var(--line);
+    padding:9px 14px;font-size:12px;color:var(--muted)}
+  .dot{width:10px;height:10px;border-radius:50%;background:#cdd4dd}
+  .url{margin-left:8px;background:#fff;border:1px solid var(--line);border-radius:6px;
+    padding:3px 10px;color:var(--ink);font-size:12px}
+  .app{display:grid;grid-template-columns:200px 1fr;min-height:300px}
+  .side{background:#fbfcfd;border-right:1px solid var(--line);padding:16px 14px;font-size:13px}
+  .logo{font-weight:800;color:var(--brand);font-size:16px;margin-bottom:16px}
+  .logo span{color:var(--accent)}
+  .nav{display:flex;flex-direction:column;gap:2px}
+  .nav a{padding:7px 10px;border-radius:8px;color:var(--ink);text-decoration:none}
+  .nav a.on{background:var(--brand-soft);color:var(--brand);font-weight:600}
+  .nav a.dim{color:var(--muted)}
+  .main{padding:20px 22px}
+  .crumb{font-size:12px;color:var(--muted);margin-bottom:4px}
+  .h{font-size:19px;font-weight:700;margin:0 0 14px}
+  .pill{display:inline-block;font-size:11px;padding:2px 9px;border-radius:20px;font-weight:600}
+  .pill.green{background:var(--add);color:var(--add-ink)}
+  .pill.amber{background:#fdf3e0;color:#a9711a}
+  .pill.grey{background:#eef1f4;color:var(--muted)}
+  .row{display:flex;justify-content:space-between;align-items:center;padding:11px 0;border-bottom:1px solid var(--line)}
+  .row:last-child{border-bottom:0}
+  .row .lab{font-weight:600;font-size:14px}
+  .row .meta{font-size:12px;color:var(--muted)}
+  .btn{display:inline-block;background:var(--brand);color:#fff;border:0;border-radius:8px;
+    padding:8px 14px;font-size:13px;font-weight:600;cursor:default}
+  .btn.ghost{background:#fff;border:1px solid var(--line);color:var(--ink)}
+  .btn.acc{background:var(--accent)}
+  .grid2{display:grid;grid-template-columns:1fr 1fr;gap:14px}
+  .panel{border:1px solid var(--line);border-radius:10px;padding:14px}
+  .panel h4{margin:0 0 10px;font-size:13px;color:var(--muted);text-transform:uppercase;letter-spacing:.05em}
+  .li{font-size:13px;padding:5px 0;border-bottom:1px dashed var(--line)}
+  .li:last-child{border-bottom:0}
+  .diff{font-size:13px;border-radius:8px;overflow:hidden;border:1px solid var(--line)}
+  .diff .l{padding:7px 12px;border-bottom:1px solid var(--line)}
+  .diff .l:last-child{border-bottom:0}
+  .diff .add{background:var(--add);color:var(--add-ink)}
+  .diff .del{background:var(--del);color:var(--del-ink);text-decoration:line-through;opacity:.85}
+  .src{font-size:11px;color:var(--muted);margin-top:8px;display:flex;align-items:center;gap:6px}
+  .src b{color:var(--brand)}
+  .actions{display:flex;gap:8px;margin-top:12px}
+  .caption{font-size:12px;color:var(--muted);padding:10px 22px 16px}
+  .legend{font-size:12px;color:var(--muted);margin-top:10px}
+  .legend b{color:var(--ink)}
+</style>
+</head>
+<body>
+<div class="wrap">
+  <h1>GT-builder</h1>
+  <p class="sub">Schéma d'architecture fonctionnelle et maquettes des écrans clés — support de cadrage, v0.1</p>
+
+  <!-- ARCHITECTURE -->
+  <h2>1 · Chaîne de valeur « de la réunion au livrable publié »</h2>
+  <div class="card pad">
+    <div class="flow">
+      <div class="step"><div class="n">CAPTER</div><div class="t">Réunion</div><div class="d">ODJ, participants, visio externe</div></div>
+      <div class="arrow">→</div>
+      <div class="step"><div class="n">CAPTER</div><div class="t">Transcription</div><div class="d">audio → texte FR + diarisation</div></div>
+      <div class="arrow">→</div>
+      <div class="step"><div class="n">CAPTER</div><div class="t">CR validé</div><div class="d">IA suggère · humain valide</div></div>
+      <div class="arrow">→</div>
+      <div class="step alt"><div class="n">CONSTRUIRE</div><div class="t">Livrable vivant</div><div class="d">propositions diffables, traçées</div></div>
+      <div class="arrow">→</div>
+      <div class="step alt"><div class="n">PUBLIER</div><div class="t">Mise en forme + diffusion</div><div class="d">charte, PDF, web, LinkedIn</div></div>
+    </div>
+    <div class="stack">
+      <div class="brick"><b>Transcription</b><span>LinTO · WhisperX + pyannote (souverain, FR)</span></div>
+      <div class="brick"><b>LLM</b><span>Mistral via OVHcloud / Scaleway · option Albert API</span></div>
+      <div class="brick"><b>Socle livrable</b><span>Docmost (AGPL) ou Tiptap sur mesure</span></div>
+      <div class="brick"><b>Mise en forme</b><span>charte tenant → HTML → PDF (WeasyPrint)</span></div>
+      <div class="brick"><b>Hébergement</b><span>OVH / Scaleway / Clever Cloud · Docker</span></div>
+      <div class="brick"><b>Données</b><span>PostgreSQL · stockage S3 souverain</span></div>
+    </div>
+    <p class="legend"><b>Vert</b> = capter · <b>Orange</b> = construire / publier. Rien n'est écrit dans le CR ou le livrable sans validation humaine.</p>
+  </div>
+
+  <!-- ECRAN 1 : TABLEAU DE BORD GT -->
+  <h2>2 · Écran — Tableau de bord d'un groupe de travail</h2>
+  <div class="card mock">
+    <div class="mockbar"><span class="dot"></span><span class="dot"></span><span class="dot"></span>
+      <span class="url">federation-bois.gtbuilder.fr / gt-tracabilite</span></div>
+    <div class="app">
+      <div class="side">
+        <div class="logo">GT<span>builder</span></div>
+        <div class="nav">
+          <a href="#" class="on">Tableau de bord</a>
+          <a href="#" class="dim">Réunions</a>
+          <a href="#" class="dim">Livrable</a>
+          <a href="#" class="dim">Actions</a>
+          <a href="#" class="dim">Membres</a>
+          <a href="#" class="dim">Publications</a>
+        </div>
+      </div>
+      <div class="main">
+        <div class="crumb">Fédération Bois · Groupes de travail</div>
+        <div class="h">GT Traçabilité de la filière</div>
+        <div class="grid2">
+          <div class="panel">
+            <h4>Prochaine réunion</h4>
+            <div class="row"><div><div class="lab">Réunion #6</div><div class="meta">mar. 30 juin · 14h00 · Jitsi</div></div><span class="pill amber">à venir</span></div>
+            <div class="row"><div><div class="lab">Réunion #5</div><div class="meta">2 juin · CR validé</div></div><span class="pill green">traité</span></div>
+          </div>
+          <div class="panel">
+            <h4>Livrable — Guide traçabilité bois</h4>
+            <div class="row"><div><div class="lab">Avancement</div><div class="meta">7 sections · 4 validées · 2 en discussion</div></div><span class="pill amber">en cours</span></div>
+            <div class="row"><div><div class="lab">3 propositions IA</div><div class="meta">issues du CR #5, en attente</div></div><span class="btn ghost">Examiner</span></div>
+          </div>
+        </div>
+        <div class="panel" style="margin-top:14px">
+          <h4>Actions ouvertes</h4>
+          <div class="li">Cadrer le périmètre des essences couvertes — <b>M. Durand</b> · 25 juin</div>
+          <div class="li">Récupérer les référentiels existants — <b>S. Petit</b> · 28 juin</div>
+        </div>
+      </div>
+    </div>
+    <p class="caption">L'animateur voit en un coup d'œil l'état du cycle : réunions, avancement du livrable, propositions en attente, actions.</p>
+  </div>
+
+  <!-- ECRAN 2 : VALIDATION CR -->
+  <h2>3 · Écran — Compte rendu assisté (brouillon IA → validation)</h2>
+  <div class="card mock">
+    <div class="mockbar"><span class="dot"></span><span class="dot"></span><span class="dot"></span>
+      <span class="url">federation-bois.gtbuilder.fr / gt-tracabilite / reunion-5 / cr</span></div>
+    <div class="app">
+      <div class="side">
+        <div class="logo">GT<span>builder</span></div>
+        <div class="nav">
+          <a href="#" class="dim">Tableau de bord</a>
+          <a href="#" class="on">Réunions</a>
+          <a href="#" class="dim">Livrable</a>
+          <a href="#" class="dim">Actions</a>
+        </div>
+      </div>
+      <div class="main">
+        <div class="crumb">Réunion #5 · 2 juin</div>
+        <div class="h">Compte rendu <span class="pill amber" style="vertical-align:middle">brouillon IA</span></div>
+        <div class="panel">
+          <h4>Décisions proposées par l'assistant</h4>
+          <div class="li">Le guide couvrira le sciage et le bois-construction en priorité.</div>
+          <div class="li">Adoption d'un identifiant de lot unique comme socle de traçabilité.</div>
+          <h4 style="margin-top:14px">Actions extraites</h4>
+          <div class="li">M. Durand — cadrer le périmètre des essences · 25 juin</div>
+          <div class="li">S. Petit — récupérer les référentiels existants · 28 juin</div>
+          <div class="src">⏱ généré depuis le transcript · <b>diarisation : 4 locuteurs</b></div>
+          <div class="actions">
+            <button class="btn">Valider le CR</button>
+            <button class="btn ghost">Modifier</button>
+            <button class="btn ghost">Régénérer</button>
+          </div>
+        </div>
+      </div>
+    </div>
+    <p class="caption">L'IA structure (présents, décisions, actions). L'animateur corrige et valide. Le CR validé devient une source citable du livrable.</p>
+  </div>
+
+  <!-- ECRAN 3 : LIVRABLE VIVANT + PROPOSITION DIFF -->
+  <h2>4 · Écran — Livrable vivant & proposition diffable</h2>
+  <div class="card mock">
+    <div class="mockbar"><span class="dot"></span><span class="dot"></span><span class="dot"></span>
+      <span class="url">federation-bois.gtbuilder.fr / gt-tracabilite / livrable</span></div>
+    <div class="app">
+      <div class="side">
+        <div class="logo">GT<span>builder</span></div>
+        <div class="nav">
+          <a href="#" class="dim">Tableau de bord</a>
+          <a href="#" class="dim">Réunions</a>
+          <a href="#" class="on">Livrable</a>
+        </div>
+        <h4 style="font-size:11px;color:var(--muted);margin:16px 0 8px;letter-spacing:.05em">SECTIONS</h4>
+        <div class="nav">
+          <a href="#" class="dim">1 · Contexte <span class="pill green" style="font-size:9px">✓</span></a>
+          <a href="#" class="on">2 · Enjeux de traçabilité</a>
+          <a href="#" class="dim">3 · Identifiant de lot</a>
+          <a href="#" class="dim">4 · Recommandations</a>
+        </div>
+      </div>
+      <div class="main">
+        <div class="crumb">Guide traçabilité bois · Section 2</div>
+        <div class="h">Enjeux de traçabilité <span class="pill amber" style="vertical-align:middle">en discussion</span></div>
+        <div class="panel">
+          <h4>Proposition de l'assistant</h4>
+          <div class="diff">
+            <div class="l">La traçabilité repose sur la documentation des flux.</div>
+            <div class="l del">Les acteurs partagent leurs données au cas par cas.</div>
+            <div class="l add">Un identifiant de lot unique relie chaque maillon, du sciage à la mise en œuvre, et conditionne l'interopérabilité entre systèmes.</div>
+          </div>
+          <div class="src">Provenance : <b>Réunion #5 — décision sur l'identifiant de lot</b></div>
+          <div class="actions">
+            <button class="btn">Accepter</button>
+            <button class="btn ghost">Amender</button>
+            <button class="btn ghost">Rejeter</button>
+          </div>
+        </div>
+        <p class="legend" style="margin-top:14px">Chaque passage du livrable reste relié à sa réunion source. Le journal de validation conserve qui a accepté quoi, et quand.</p>
+      </div>
+    </div>
+    <p class="caption">Cœur du produit : l'IA propose une évolution ciblée par section, en diff, traçée jusqu'à la réunion. La décision reste humaine.</p>
+  </div>
+
+  <!-- ECRAN 4 : PUBLICATION -->
+  <h2>5 · Écran — Mise en forme & publication</h2>
+  <div class="card mock">
+    <div class="mockbar"><span class="dot"></span><span class="dot"></span><span class="dot"></span>
+      <span class="url">federation-bois.gtbuilder.fr / gt-tracabilite / publier</span></div>
+    <div class="app">
+      <div class="side">
+        <div class="logo">GT<span>builder</span></div>
+        <div class="nav">
+          <a href="#" class="dim">Livrable</a>
+          <a href="#" class="on">Publications</a>
+        </div>
+      </div>
+      <div class="main">
+        <div class="crumb">Guide traçabilité bois</div>
+        <div class="h">Publier le livrable</div>
+        <div class="grid2">
+          <div class="panel">
+            <h4>Mise en forme — charte Fédération Bois</h4>
+            <div class="li">Couverture + logo + sommaire automatique</div>
+            <div class="li">Typographies et couleurs du tenant</div>
+            <div class="li">Mention « validé par le GT, rédigé avec assistance IA »</div>
+            <div class="actions"><button class="btn ghost">Aperçu PDF</button></div>
+          </div>
+          <div class="panel">
+            <h4>Canaux de diffusion</h4>
+            <div class="row"><div class="lab">PDF charté</div><span class="btn">Exporter</span></div>
+            <div class="row"><div class="lab">Page web publique</div><span class="btn">Publier</span></div>
+            <div class="row"><div><div class="lab">LinkedIn (page)</div><div class="meta">post généré, prêt à programmer</div></div><span class="btn acc">Programmer</span></div>
+          </div>
+        </div>
+      </div>
+    </div>
+    <p class="caption">Le livrable fini est charté puis diffusé. LinkedIn : automatisé une fois l'accès API obtenu, sinon post généré prêt à coller (mode MVP).</p>
+  </div>
+
+</div>
+</body>
+</html>

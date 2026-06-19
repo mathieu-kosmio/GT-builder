@@ -1,0 +1,18 @@
+# GT-builder - routage et TLS automatique
+# Remplacer gtbuilder.fr par votre PUBLIC_BASE_DOMAIN.
+
+# Application (back-office des animateurs et contributeurs)
+app.gtbuilder.fr {
+	reverse_proxy app:3000
+}
+
+# Serveur de co-edition temps reel (WebSocket Yjs / Hocuspocus)
+collab.gtbuilder.fr {
+	reverse_proxy hocuspocus:1234
+}
+
+# Pages publiques des livrables, un sous-domaine par tenant
+# ex: federation-bois.gtbuilder.fr
+*.gtbuilder.fr {
+	reverse_proxy public-site:4321
+}

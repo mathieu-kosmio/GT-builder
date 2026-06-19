@@ -1,0 +1,7 @@
+# Réglages pnpm (pnpm 11+ ne lit plus le champ "pnpm" de package.json).
+# Autorise les scripts de build nécessaires : esbuild (tsup), msgpackr-extract (bullmq),
+# sharp (optimisation d'images Next).
+allowBuilds:
+  esbuild: true
+  msgpackr-extract: true
+  sharp: true

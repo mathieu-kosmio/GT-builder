@@ -1,0 +1,12 @@
+---
+import Base from "../layouts/Base.astro";
+const baseDomain = process.env.PUBLIC_BASE_DOMAIN ?? "gtbuilder.fr";
+---
+
+<Base title="GT-builder — publications">
+  <h1>Publications publiques</h1>
+  <p class="muted">
+    Chaque organisation publie ses livrables sur son sous-domaine&nbsp;:
+    <code>&lt;slug&gt;.{baseDomain}</code>.
+  </p>
+</Base>

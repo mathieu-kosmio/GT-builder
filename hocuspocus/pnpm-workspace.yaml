@@ -1,0 +1,3 @@
+# Réglages pnpm (pnpm 11+). Autorise le build d'esbuild (utilisé par tsup).
+allowBuilds:
+  esbuild: true

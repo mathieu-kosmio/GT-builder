@@ -1,0 +1,4 @@
+# Réglages pnpm (pnpm 11+). Autorise les build scripts d'Astro/Sharp/esbuild.
+allowBuilds:
+  esbuild: true
+  sharp: true

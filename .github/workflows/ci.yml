@@ -1,0 +1,68 @@
+name: CI
+
+on:
+  push:
+    branches: [main, master]
+  pull_request:
+
+jobs:
+  # Build + typecheck des trois sous-projets (projets pnpm autonomes).
+  build:
+    runs-on: ubuntu-latest
+    strategy:
+      fail-fast: false
+      matrix:
+        project: [app, hocuspocus, public-site]
+    steps:
+      - uses: actions/checkout@v4
+      - uses: pnpm/action-setup@v4
+        with:
+          version: 11
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 22
+          cache: pnpm
+          cache-dependency-path: ${{ matrix.project }}/pnpm-lock.yaml
+      - name: Install
+        working-directory: ${{ matrix.project }}
+        run: pnpm install --frozen-lockfile
+      - name: Typecheck
+        working-directory: ${{ matrix.project }}
+        run: pnpm run typecheck --if-present
+      - name: Build
+        working-directory: ${{ matrix.project }}
+        run: pnpm run build
+
+  # Validation de la topologie docker-compose + initialisation réelle de Postgres
+  # (prouve que db/init : schéma + RLS + quotas + seed s'appliquent sans erreur).
+  compose:
+    runs-on: ubuntu-latest
+    needs: build
+    env:
+      POSTGRES_USER: gtbuilder_admin
+      POSTGRES_DB: gtbuilder
+    steps:
+      - uses: actions/checkout@v4
+      - name: Prepare .env
+        run: cp .env.example .env
+      - name: Validate compose topology
+        run: docker compose --env-file .env config -q
+      - name: Boot Postgres only
+        run: docker compose --env-file .env up -d postgres
+      - name: Wait for healthcheck
+        run: |
+          for i in $(seq 1 30); do
+            status=$(docker inspect --format '{{.State.Health.Status}}' "$(docker compose ps -q postgres)" 2>/dev/null || echo starting)
+            echo "postgres: $status"
+            [ "$status" = "healthy" ] && exit 0
+            sleep 3
+          done
+          echo "Postgres n'est pas devenu healthy"; docker compose logs postgres; exit 1
+      - name: Verify SQL init (tables, rôle, seed)
+        run: |
+          docker compose exec -T postgres psql -U "$POSTGRES_USER" -d "$POSTGRES_DB" -c "\dt" | grep -q section_embedding
+          docker compose exec -T postgres psql -U "$POSTGRES_USER" -d "$POSTGRES_DB" -tAc "SELECT count(*) FROM plan;" | grep -q 3
+          docker compose exec -T postgres psql -U "$POSTGRES_USER" -d "$POSTGRES_DB" -tAc "SELECT rolname FROM pg_roles WHERE rolname='gtbuilder_app';" | grep -q gtbuilder_app
+      - name: Teardown
+        if: always()
+        run: docker compose down -v

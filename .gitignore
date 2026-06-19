@@ -1,0 +1,32 @@
+# Dependencies
+node_modules/
+.pnpm-store/
+
+# Builds
+.next/
+dist/
+**/.astro/
+public-site/.vercel/
+
+# Env & secrets
+.env
+.env.*
+!.env.example
+
+# Logs
+*.log
+npm-debug.log*
+pnpm-debug.log*
+
+# Caddy runtime state
+caddy/data/
+caddy/config/
+
+# OS / éditeurs
+.DS_Store
+Thumbs.db
+.idea/
+.vscode/
+
+# Local agent config
+.claude/

@@ -1,0 +1,24 @@
+---
+import Base from "../layouts/Base.astro";
+import { fetchPublications, tenantSlugFromHost } from "../lib/api";
+
+// Page publique d'un tenant : le tenant est résolu par le sous-domaine (Host), pas par l'URL.
+const slug = tenantSlugFromHost(Astro.request.headers.get("host"));
+const { tenant, publications } = await fetchPublications(slug);
+const title = tenant.name ?? slug ?? "GT-builder";
+---
+
+<Base title={`${title} — publications`}>
+  <h1>{title}</h1>
+  {
+    publications.length === 0 ? (
+      <p class="muted">Aucune publication pour le moment.</p>
+    ) : (
+      <ul>
+        {publications.map((p) => (
+          <li><a href={p.url}>{p.title}</a></li>
+        ))}
+      </ul>
+    )
+  }
+</Base>
